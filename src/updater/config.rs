@@ -2,9 +2,6 @@
 use crate::updater::{platform::Platform, current_game::CurrentGame, lastest_build::LatestBuild};
 
 
-#[allow(dead_code)]
-#[derive(Debug)]
-#[derive(Clone)]
 pub struct Config {
     pub platform: Platform,
     pub tiles: bool,
@@ -17,7 +14,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Config {
+    pub fn new(current_game_path: &str) -> Config {
+
         Config { 
             platform: Platform::default(), 
             tiles: true,
@@ -25,7 +23,7 @@ impl Config {
             backup_configdir: true,
             backup_savedir: true,
             backup_templates: true,
-            current_game: CurrentGame{ path: String::from(""), build_number: String::from("") },
+            current_game: CurrentGame::new(&current_game_path.to_string()),
             latestbuild: LatestBuild::new()
         }
     }
@@ -86,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_get_download_file() {
-        let mut cfg = Config::new();
+        let mut cfg = Config::new("");
         cfg.latestbuild.build_number = "2023-05-16-2259".to_string();
 
         // Windows, tiles false, sounds false

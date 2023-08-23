@@ -6,7 +6,6 @@ pub struct CurrentGame {
     pub build_number: String,
 }
 impl CurrentGame {
-    #[allow(unused)]
     pub fn new(gamedir: &String) -> CurrentGame {
         use std::path::Path;
         let mut bn = "".to_string();

@@ -1,21 +1,17 @@
-
 #[allow(unused)]
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct LatestBuild {
     pub build_number: String,
 }
 impl LatestBuild {
-    #[allow(unused)]
     pub fn new() -> LatestBuild {
         LatestBuild {
             build_number: "".to_string(),
         }
     }
-    #[allow(unused)]
     pub fn pull(&mut self) {
         let mut dst = Vec::new();
-
+        println!("获取最新版本号...");
         {
             let mut easy = curl::easy::Easy::new();
             easy.url("https://cataclysmdda.org/experimental/").unwrap();
@@ -25,8 +21,8 @@ impl LatestBuild {
                     dst.extend_from_slice(data);
                     Ok(data.len())
                 })
-                .unwrap();
-            transfer.perform().unwrap();
+                .expect("连接失败");
+            transfer.perform().expect("连接失败");
         }
 
         let s = String::from_utf8(dst).unwrap();
