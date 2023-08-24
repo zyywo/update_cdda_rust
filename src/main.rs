@@ -11,6 +11,11 @@ struct Cli {
     /// 指定版本
     #[arg(long)]
     build_number: Option<String>,
+
+    /// github加速器
+    #[arg(long)]
+    #[arg(default_value = "https://gitproxy.zhangyongyao.com")]
+    proxy: Option<String>,
 }
 
 fn main() {
@@ -20,6 +25,11 @@ fn main() {
 
     match cli.build_number {
         Some(number) => cfg.latestbuild.build_number = number,
+        None => (),
+    }
+
+    match cli.proxy {
+        Some(proxy) => cfg.proxy = proxy,
         None => (),
     }
 

@@ -32,7 +32,7 @@ pub fn updater(mut cfg: Config) {
             .to_str()
             .unwrap()
             .to_string(),
-        &String::from("https://gitproxy.zhangyongyao.com/"),
+        &cfg.proxy,
     );
     if let Err(s) = f {
         println!("{}", &s);

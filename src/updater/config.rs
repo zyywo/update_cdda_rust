@@ -4,6 +4,7 @@ use crate::updater::{platform::Platform, current_game::CurrentGame, lastest_buil
 
 pub struct Config {
     pub platform: Platform,
+    pub proxy: String,
     pub tiles: bool,
     pub sounds: bool,
     pub backup_configdir: bool,
@@ -17,7 +18,8 @@ impl Config {
     pub fn new(current_game_path: &str) -> Config {
 
         Config { 
-            platform: Platform::default(), 
+            platform: Platform::default(),
+            proxy: "".to_string(),
             tiles: true,
             sounds: false,
             backup_configdir: true,
