@@ -2,6 +2,9 @@
 extern crate ini;
 mod updater;
 use clap::{ArgAction, Parser};
+use home::home_dir;
+use std::fs::create_dir_all;
+use std::fs::File;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
@@ -30,45 +33,68 @@ struct Cli {
 }
 
 fn main() {
-    let (cdda, proxy, keep_dirs, keep_files) = match ini!("config.ini").get("default") {
-        Some(x) => {
-            let cdda = match x.get("cdda") {
-                Some(cp) => cp.clone(),
-                None => None,
-            };
-            let proxy = match x.get("proxy") {
-                Some(py) => py.clone(),
-                None => None,
-            };
-            let keep_dirs = match x.get("keep_dirs") {
-                Some(kpd) => kpd
-                    .as_ref()
-                    .unwrap()
-                    .split(',')
-                    .map(|x| x.to_string())
-                    .collect(),
-                None => vec![String::from("")],
-            };
-            let keep_files = match x.get("keep_files") {
-                Some(kpf) => kpf
-                    .as_ref()
-                    .unwrap()
-                    .split(',')
-                    .map(|x| x.to_string())
-                    .collect(),
-                None => vec![String::from("")],
-            };
-            (cdda, proxy, keep_dirs, keep_files)
+    let config_path = home_dir().unwrap().join(".config/update_cdda/config.ini");
+    if !config_path.exists() {
+        match create_dir_all(&config_path.parent().unwrap()) {
+            Ok(_) => {
+                if let Err(e) = File::create(&config_path) {
+                    println!("创建配置文件失败: {}", e);
+                } else {
+                    println!("创建空配置文件: {}", &config_path.to_str().unwrap());
+                }
+            }
+            Err(e) => {
+                println!("创建配置文件失败: {}", e)
+            }
         }
-        None => (None, None, vec![String::from("")], vec![String::from("")]),
-    };
+    }
+
+    let (cdda, proxy, keep_dirs, keep_files) =
+        match ini!(config_path.to_str().unwrap()).get("default") {
+            Some(x) => {
+                let cdda = match x.get("cdda") {
+                    Some(cp) => cp.clone(),
+                    None => None,
+                };
+                let proxy = match x.get("proxy") {
+                    Some(py) => py.clone(),
+                    None => None,
+                };
+                let keep_dirs = match x.get("keep_dirs") {
+                    Some(kpd) => kpd
+                        .as_ref()
+                        .unwrap()
+                        .split(',')
+                        .map(|x| x.to_string())
+                        .collect(),
+                    None => vec![String::from("")],
+                };
+                let keep_files = match x.get("keep_files") {
+                    Some(kpf) => kpf
+                        .as_ref()
+                        .unwrap()
+                        .split(',')
+                        .map(|x| x.to_string())
+                        .collect(),
+                    None => vec![String::from("")],
+                };
+                (cdda, proxy, keep_dirs, keep_files)
+            }
+            None => (None, None, vec![String::from("")], vec![String::from("")]),
+        };
 
     let cli = Cli::parse();
 
     // 命令行参数中的路径优先级大于配置文件中的路径优先级
     let mut cfg = match cli.path {
         Some(path) => updater::config::Config::new(path.as_str()),
-        None => updater::config::Config::new(cdda.unwrap().as_str()),
+        None => {
+            if cdda == None {
+                println!("必须在配置文件或选项中设置游戏路径");
+                return ();
+            }
+            updater::config::Config::new(cdda.unwrap().as_str())
+        }
     };
 
     // 命令行参数中的加速器优先级大于配置文件中的加速器优先级
