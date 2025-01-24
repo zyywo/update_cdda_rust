@@ -3,6 +3,7 @@ use crate::updater::Config;
 ///
 use curl::Error;
 use std::io::Write;
+use zip::ZipArchive;
 
 pub fn compare_version(cfg: &mut Config) -> Result<(), ()> {
     // 获取最新发布的版本号
@@ -31,14 +32,17 @@ pub fn compare_version(cfg: &mut Config) -> Result<(), ()> {
 
 // 下载器
 pub fn downloader(url: &String, path: &String, proxy: &String) -> Result<(), curl::Error> {
-    if std::path::Path::new(&path).exists() {
-        println!("{}已经存在，不需要下载。", &path);
-        return Ok(());
+    if let Ok(fp) = std::fs::File::open(path) {
+        if let Ok(_) = ZipArchive::new(fp) {
+            println!("{}已经存在，不需要下载。", &path);
+            return Ok(());
+        }
     }
     let mut file = std::fs::File::create(path).expect(format!("创建{path}失败").as_str());
     let mut easy = curl::easy::Easy::new();
     if proxy == "" {
         easy.url(url).expect("设置url出错");
+        println!("没有设置加速器")
     } else if proxy.ends_with('/') {
         easy.url(format!("{}{}", proxy, url).as_str())
             .expect("设置url出错");

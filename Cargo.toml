@@ -1,6 +1,6 @@
 [package]
 name = "update_cdda"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "更新CDDA游戏"
 
@@ -13,4 +13,5 @@ zip = "0.6.6"
 flate2 = "1.0.26"
 fs_extra = "1.3.0"
 tar = "0.4.40"
+ini = "1.3.0"
 clap = { version = "4.3.23", features = ["derive"] }
