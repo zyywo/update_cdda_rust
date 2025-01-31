@@ -1,34 +1,8 @@
-use crate::updater::Config;
 /// 包含下载和解压两个工具
 ///
 use curl::Error;
 use std::io::Write;
 use zip::ZipArchive;
-
-pub fn compare_version(cfg: &mut Config) -> Result<(), ()> {
-    // 获取最新发布的版本号
-    {
-        if cfg.latestbuild.build_number == "" {
-            cfg.latestbuild.pull();
-        }
-    }
-
-    if cfg.current_game.build_number == cfg.latestbuild.build_number {
-        let log = format!(
-            "当前安装的已经是最新版本{}，不需要更新。",
-            cfg.current_game.build_number
-        );
-        println!("{log}");
-        Ok(())
-    } else {
-        let log = format!(
-            "当前版本{}\n最新版本{}",
-            cfg.current_game.build_number, cfg.latestbuild.build_number
-        );
-        println!("{log}");
-        Err(())
-    }
-}
 
 // 下载器
 pub fn downloader(url: &String, path: &String, proxy: &String) -> Result<(), curl::Error> {

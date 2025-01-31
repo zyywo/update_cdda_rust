@@ -6,11 +6,7 @@ pub mod utils;
 use config::Config;
 use std::{collections::HashSet, path::PathBuf};
 
-pub fn updater(mut cfg: Config) {
-    if let Ok(_) = utils::compare_version(&mut cfg) {
-        return;
-    }
-
+pub fn updater(cfg: Config) {
     let temp_dir = std::path::Path::new(&cfg.current_game.path).join("cdda_update_temp");
     println!("创建临时文件夹...");
     if !temp_dir.exists() {

@@ -1,10 +1,13 @@
 #[macro_use]
 extern crate ini;
 mod updater;
+use chrono::Utc;
 use clap::{ArgAction, Parser};
 use home::home_dir;
 use std::fs::create_dir_all;
 use std::fs::File;
+use std::io;
+use std::io::Read;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
@@ -103,12 +106,28 @@ fn main() {
         None => cfg.proxy = proxy.unwrap(),
     };
 
-    if let Some(n) = cli.build {
-        cfg.latestbuild.build_number = n
-    };
+    match cli.build {
+        Some(n) => {
+            if n.len() > 4 {
+                cfg.latestbuild.build_number = n;
+            } else if n.len() < 4 {
+                cfg.latestbuild.pull();
+            } else {
+                let today_utc = Utc::now().date_naive().to_string();
+                cfg.latestbuild.build_number = format!("{}-{}", today_utc, n);
+            }
+        }
+        None => cfg.latestbuild.pull(),
+    }
 
     cfg.keep_dirs = keep_dirs;
     cfg.keep_files = keep_files;
 
-    updater::updater(cfg);
+    println!("\n{}", &cfg);
+    println!("\n输入Y或y确认更新，输入其他键放弃更新:");
+    let mut buf = [0];
+    io::stdin().read_exact(&mut buf).expect("输入错误");
+    if buf[0] == b'Y' || buf[0] == b'y' {
+        updater::updater(cfg);
+    }
 }

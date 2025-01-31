@@ -53,6 +53,23 @@ impl Config {
     }
 }
 
+impl std::fmt::Display for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "最新版本：{}\n当前版本：{}\n贴图：{}\n音乐：{}\n游戏目录：{}\n更新时保留文件夹：{}\n更新时保留文件：{}\ngithub加速器：{}",
+            self.latestbuild.build_number,
+            self.current_game.build_number,
+            self.tiles,
+            self.sounds,
+            self.current_game.path,
+            self.keep_dirs.join(", "),
+            self.keep_files.join(", "),
+            self.proxy
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -115,5 +132,11 @@ mod tests {
         cfg.tiles = true;
         cfg.sounds = true;
         assert_eq!(cfg.get_download_file(), "");
+    }
+
+    #[test]
+    fn test_config_display() {
+        let cfg = Config::new(r"C:\Users\zyy\Downloads\cdda");
+        println!("{}", cfg);
     }
 }
