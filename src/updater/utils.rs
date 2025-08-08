@@ -26,6 +26,7 @@ pub fn downloader(url: &String, path: &String, proxy: &String) -> Result<(), cur
             .expect("设置url出错");
         println!("使用加速器：{proxy}/{url}");
     }
+    easy.follow_location(true).unwrap();
     easy.progress(true).expect("下载出错");
     {
         let mut transfer = easy.transfer();
