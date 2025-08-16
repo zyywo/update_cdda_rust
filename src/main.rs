@@ -112,9 +112,6 @@ fn main() {
                 cfg.latestbuild.build_number = n;
             } else if n.len() < 4 {
                 cfg.latestbuild.pull();
-            } else {
-                let today_utc = Utc::now().date_naive().to_string();
-                cfg.latestbuild.build_number = format!("{}-{}", today_utc, n);
             }
         }
         None => cfg.latestbuild.pull(),
