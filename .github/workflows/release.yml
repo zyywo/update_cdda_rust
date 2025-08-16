@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+env:
+  CARGO_TERM_COLOR: always
+  BUILD_NAME: update_cdda
+
+jobs:
+  cargo:
+    name: get version
+    runs-on: ubuntu-latest
+    permissions: write-all
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get version
+        id: get-version
+        run: |
+          echo "version=$(sed -nr 's/^version = "([0-9.]+)"/\1/p' Cargo.toml)" >> $GITHUB_OUTPUT
+  
+  build-linux:
+    needs: cargo
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: |
+        cargo build --release --verbose
+        mv target/release/${{ env.BUILD_NAME }} target/release/${{ env.BUILD_NAME }}_linux_v${{ needs.cargo.outputs.version }}
+    - run: |
+        gh release upload v${{ needs.cargo.outputs.version }} target/release/${{ env.BUILD_NAME }}_linux_v${{ needs.cargo.outputs.version }}
+  
+  build-windows:
+    needs: cargo
+    runs-on: windows-latest
+    #permissions: write-all
+    steps:
+    - uses: actions/checkout@v4
+    # - name: Install CMake
+    #   uses: ssrobins/install-cmake@v1
+    #   with:
+    #     version: 3.24.3
+    - name: Build
+      run: |
+        cargo build --release
+        mv target/release/${{ env.BUILD_NAME }}.exe target/release/${{ env.BUILD_NAME }}_windows_v${{ needs.cargo.outputs.version }}.exe
+    - run: |
+        gh release upload v${{ needs.cargo.outputs.version }} target/release/${{ env.BUILD_NAME }}_windows_v${{ needs.cargo.outputs.version }}.exe
