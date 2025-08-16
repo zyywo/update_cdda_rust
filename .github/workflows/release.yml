@@ -6,6 +6,7 @@ on:
     tags:
       - "v*"
 env:
+  GH_TOKEN: ${{ github.token }}
   CARGO_TERM_COLOR: always
   BUILD_NAME: update_cdda
 
@@ -30,7 +31,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build
       run: |
-        cargo build --release --verbose
+        cargo build --release
         mv target/release/${{ env.BUILD_NAME }} target/release/${{ env.BUILD_NAME }}_linux_v${{ needs.cargo.outputs.version }}
     - run: |
         gh release upload v${{ needs.cargo.outputs.version }} target/release/${{ env.BUILD_NAME }}_linux_v${{ needs.cargo.outputs.version }}
