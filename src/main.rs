@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate ini;
 mod updater;
-use chrono::Utc;
 use clap::{ArgAction, Parser};
 use home::home_dir;
 use std::fs::create_dir_all;

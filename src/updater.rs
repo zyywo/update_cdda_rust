@@ -16,14 +16,14 @@ pub fn updater(cfg: Config) {
     let download_url = format!(
         "https://github.com/CleverRaven/Cataclysm-DDA/releases/download/cdda-experimental-{}/{}",
         cfg.latestbuild.build_number,
-        cfg.get_download_file()
+        cfg.generate_cdda_file_name().unwrap()
     );
     println!("{}", format!("下载链接：{}", download_url));
 
     let f = utils::downloader(
         &download_url,
         &temp_dir
-            .join(cfg.get_download_file())
+            .join(cfg.generate_cdda_file_name().unwrap())
             .to_str()
             .unwrap()
             .to_string(),

@@ -30,6 +30,7 @@ jobs:
   build-linux:
     needs: cargo
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
     - uses: actions/checkout@v4
     - name: Build
@@ -42,13 +43,9 @@ jobs:
   build-windows:
     needs: cargo
     runs-on: windows-latest
-    #permissions: write-all
+    permissions: write-all
     steps:
     - uses: actions/checkout@v4
-    # - name: Install CMake
-    #   uses: ssrobins/install-cmake@v1
-    #   with:
-    #     version: 3.24.3
     - name: Build
       run: |
         cargo build --release

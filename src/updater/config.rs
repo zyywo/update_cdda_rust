@@ -26,29 +26,44 @@ impl Config {
         }
     }
 
-    pub fn get_download_file(&self) -> String {
+    pub fn generate_cdda_file_name(&self) -> Result<String, &str> {
         match self.platform {
-            Platform::Android => {
-                format!("cdda-android-bundle-{}.aab", self.latestbuild.build_number)
-            }
-            Platform::Linux => String::from(""),
-            Platform::OSx => String::from(""),
-            Platform::Windows => {
+            Platform::Android => Ok(format!(
+                "cdda-android-bundle-{}.aab",
+                self.latestbuild.build_number
+            )),
+            Platform::Linux => {
                 if self.tiles && self.sounds {
-                    String::from(format!(
-                        "cdda-windows-with-graphics-and-sounds-x64-{}.zip",
+                    Ok(String::from(format!(
+                        "cdda-linux-with-graphics-and-sounds-x64-{}.tar.gz",
                         self.latestbuild.build_number
-                    ))
+                    )))
                 } else if self.tiles && !self.sounds {
-                    String::from(format!(
-                        "cdda-windows-with-graphics-x64-{}.zip",
+                    Ok(String::from(format!(
+                        "cdda-linux-with-graphics-x64-{}.tar.gz",
                         self.latestbuild.build_number
-                    ))
+                    )))
                 } else {
-                    String::from("")
+                    Err("没有找到合适的Linux版本，请检查配置是否正确")
                 }
             }
-            _ => String::from(""),
+            Platform::OSx => Err("MacOS 暂不支持"),
+            Platform::Windows => {
+                if self.tiles && self.sounds {
+                    Ok(String::from(format!(
+                        "cdda-windows-with-graphics-and-sounds-x64-{}.zip",
+                        self.latestbuild.build_number
+                    )))
+                } else if self.tiles && !self.sounds {
+                    Ok(String::from(format!(
+                        "cdda-windows-with-graphics-x64-{}.zip",
+                        self.latestbuild.build_number
+                    )))
+                } else {
+                    Err("没有找到合适的windows版本，请检查配置是否正确")
+                }
+            }
+            _ => Err("选项错误：没有对应的版本"),
         }
     }
 }
@@ -83,21 +98,21 @@ mod tests {
         cfg.platform = Platform::Windows;
         cfg.tiles = false;
         cfg.sounds = false;
-        assert_eq!(cfg.get_download_file(), "");
+        assert_eq!(cfg.generate_cdda_file_name(), Err("没有找到合适的windows版本，请检查配置是否正确"));
 
         // Windows, tiles false, sounds true
         cfg.platform = Platform::Windows;
         cfg.tiles = false;
         cfg.sounds = true;
-        assert_eq!(cfg.get_download_file(), "");
+        assert_eq!(cfg.generate_cdda_file_name(), Err("没有找到合适的windows版本，请检查配置是否正确"));
 
         // Windows, tiles true, sounds true
         cfg.platform = Platform::Windows;
         cfg.tiles = true;
         cfg.sounds = true;
         assert_eq!(
-            cfg.get_download_file(),
-            "cdda-windows-with-graphics-and-sounds-x64-2023-05-16-2259.zip"
+            cfg.generate_cdda_file_name(),
+            Ok("cdda-windows-with-graphics-and-sounds-x64-2023-05-16-2259.zip".to_string())
         );
 
         // Windows, tiles true, sounds false
@@ -105,33 +120,33 @@ mod tests {
         cfg.tiles = true;
         cfg.sounds = false;
         assert_eq!(
-            cfg.get_download_file(),
-            "cdda-windows-with-graphics-x64-2023-05-16-2259.zip"
+            cfg.generate_cdda_file_name(),
+            Ok("cdda-windows-with-graphics-x64-2023-05-16-2259.zip".to_string())
         );
 
         // Linux, tiles false, sounds false
         cfg.platform = Platform::Linux;
         cfg.tiles = false;
         cfg.sounds = false;
-        assert_eq!(cfg.get_download_file(), "");
+        assert_eq!(cfg.generate_cdda_file_name(), Err("没有找到合适的Linux版本，请检查配置是否正确"));
 
         // Linux, tiles true, sounds false
         cfg.platform = Platform::Linux;
         cfg.tiles = true;
         cfg.sounds = false;
-        assert_eq!(cfg.get_download_file(), "");
+        assert_eq!(cfg.generate_cdda_file_name(), Ok("cdda-linux-with-graphics-x64-2023-05-16-2259.tar.gz".to_string()));
 
         // Linux, tiles false, sounds true
         cfg.platform = Platform::Linux;
         cfg.tiles = false;
         cfg.sounds = true;
-        assert_eq!(cfg.get_download_file(), "");
+        assert_eq!(cfg.generate_cdda_file_name(), Err("没有找到合适的Linux版本，请检查配置是否正确"));
 
         // Linux, tiles true, sounds true
         cfg.platform = Platform::Linux;
         cfg.tiles = true;
         cfg.sounds = true;
-        assert_eq!(cfg.get_download_file(), "");
+        assert_eq!(cfg.generate_cdda_file_name(), Ok("cdda-linux-with-graphics-and-sounds-x64-2023-05-16-2259.tar.gz".to_string()));
     }
 
     #[test]
