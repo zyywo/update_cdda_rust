@@ -14,7 +14,7 @@ pub fn downloader(url: &String, path: &String, proxy: &String) -> Result<(), cur
     }
     let mut file = std::fs::File::create(path).expect(format!("创建{path}失败").as_str());
     let mut easy = curl::easy::Easy::new();
-    if proxy == "" {
+    if proxy == "" || proxy == " " {
         easy.url(url).expect("设置url出错");
         println!("没有设置加速器")
     } else if proxy.ends_with('/') {
