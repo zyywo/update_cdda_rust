@@ -1,6 +1,6 @@
 [package]
 name = "update_cdda"
-version = "0.1.6"
+version = "0.1.7"
 edition = "2021"
 description = "更新CDDA游戏\n配置文件在家目录的.config/update_cdda目录下"
 

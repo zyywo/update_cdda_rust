@@ -736,7 +736,7 @@ checksum = "301abaae475aa91687eb82514b328ab47a211a533026cb25fc3e519b86adfc3c"
 
 [[package]]
 name = "update_cdda"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "chrono",
  "clap",
